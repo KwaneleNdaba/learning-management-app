@@ -4,6 +4,38 @@ import { motion } from "framer-motion"
 import Link from 'next/link'
 import Image from 'next/image'
 import { useCarousel } from '@/hooks/useCarousel'
+import { Skeleton } from '@/components/ui/skeleton'
+
+const LoadingSkeleton = () => {
+    <div className="landing-skeleton">
+        <div className="landing-skeleton__hero">
+            <div className="landing-skeleton__hero-content">
+                <Skeleton className='landing-skeleton__title' />
+                <Skeleton className='landing-skeleton__subtitle' />
+                <Skeleton className='landing-skeleton__subtitle-secondary' />
+                <Skeleton className='landing-skeleton__button' />
+            </div>
+            <Skeleton className='landing-skeleton__hero-image' />
+
+        </div>
+        <div className="landing-skeleton-featured">
+            <Skeleton className='landing-skeleton__featured-title' />
+            <Skeleton className='landing-skeleton__featured-description' />
+            <div className="landing-skeleton__tags">
+                {[1, 2, 3, 4, 5].map((tag, index) => (
+                    <Skeleton key={index} className='landing-skeleton__tags' />
+
+                ))}
+            </div>
+            <div className="landing-skeleton__courses">
+                {[1, 2, 3, 4, 5].map((_, index) => (
+                    <Skeleton key={index} className='landing-skeleton__courses-card' />
+
+                ))}
+            </div>
+        </div>
+    </div>
+}
 
 function Landing() {
 
@@ -72,19 +104,22 @@ function Landing() {
                 <p className="landing__featured-description">
                     We multitude of courses, which are video-first and highly accredited, are partnered with SETA and the QCTO to deliver accessible, high-quality vocational training that’s tailored to suit individuals and businesses in South Africa.
                 </p>
-                    <div className="landing__tags">
-                        {[
-                            "Web development",
-                            "Enterprise IT",
-                            "React Nextjs",
-                            "Node JS",
-                            "AWS Cloud Services"
-                        ].map((tag , index ) => (
-                            <p key={index} className='landing__tag'>
-                                {tag}
-                            </p>
-                        ))}
-                    </div>
+                <div className="landing__tags">
+                    {[
+                        "Web development",
+                        "Enterprise IT",
+                        "React Nextjs",
+                        "Node JS",
+                        "AWS Cloud Services"
+                    ].map((tag, index) => (
+                        <p key={index} className='landing__tag'>
+                            {tag}
+                        </p>
+                    ))}
+                </div>
+                <div className="landing__courses">
+                    {/* Courses displayed here */}
+                </div>
             </motion.div>
         </motion.div>
     )
