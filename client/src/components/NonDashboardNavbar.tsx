@@ -21,7 +21,7 @@ function NonDashboardNavbar() {
                 < BookOpen className = "nondashboard-navbar__search-icon" size={18} />
             </div>
         </div>
-        </div>
+   
       </div>
       <div className="nondashboard-navbar__actions">
         <button className="nondashboard-navbar__notifications-button">
@@ -30,6 +30,7 @@ function NonDashboardNavbar() {
         </button>
 
             {/* Sign In button */}
+      </div>
       </div>
     </nav>
   )

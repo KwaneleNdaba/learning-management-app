@@ -27,7 +27,9 @@ export default function RootLayout({
       >
         <Providers>
 
-          {children}
+        <div className="root-layout">
+        {children}
+        </div>
 
         </Providers>
       </body>
