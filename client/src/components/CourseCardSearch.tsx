@@ -21,7 +21,7 @@ function CourseCardSearch({
       </div>
       <div className="course-card-search_-content">
         <div className="">
-            <h2 className="course-card-search__title">{course.title}</h2>
+            <h2 className="course-card-search__title text-white ">{course.title}</h2>
             <p className="course-card-search__description">
                 {course.description}
             </p>

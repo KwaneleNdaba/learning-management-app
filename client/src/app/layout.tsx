@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { DM_Sans } from "next/font/google"
 import Providers from "./providers";
+import { ClerkProvider } from "@clerk/nextjs";
 
 
 const dm_Sans = DM_Sans({
@@ -21,18 +22,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+   <ClerkProvider>
+     <html lang="en">
       <body
         className={`${dm_Sans.className}`}
       >
         <Providers>
-
         <div className="root-layout">
         {children}
         </div>
-
         </Providers>
       </body>
     </html>
+   </ClerkProvider>
   );
 }

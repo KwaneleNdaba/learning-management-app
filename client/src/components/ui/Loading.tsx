@@ -5,9 +5,9 @@ function Loading() {
   return (
     <div className = "loading">
 
-        <Loader2 className = "loading-spinner"/>
-        <span className='loading_text'>
-            Loading
+        <Loader2 className = "loading__spinner"/>
+        <span className='loading__text'>
+            Loading...
         </span>
     </div>
   )
