@@ -13,7 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createTransaction = exports.createStripPaymentIntent = void 0;
+exports.listTransactions = exports.createTransaction = exports.createStripPaymentIntent = void 0;
 const stripe_1 = __importDefault(require("stripe"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const courseModel_1 = __importDefault(require("../models/courseModel"));
@@ -49,7 +49,6 @@ const createStripPaymentIntent = (req, res) => __awaiter(void 0, void 0, void 0,
         });
     }
     catch (error) {
-        console.error("Error creating Stripe payment intent:", error);
         res.status(500).json({ message: "Error creating Stripe payment intent", error });
     }
 });
@@ -98,8 +97,22 @@ const createTransaction = (req, res) => __awaiter(void 0, void 0, void 0, functi
         });
     }
     catch (error) {
-        console.error("Error creating Stripe payment intent:", error);
         res.status(500).json({ message: "Error creating transaction and enrollment", error });
     }
 });
 exports.createTransaction = createTransaction;
+const listTransactions = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { userId } = req.query;
+    try {
+        const transactions = userId ? yield transactionModel_1.default.query("userId").eq(userId).exec()
+            : yield transactionModel_1.default.scan().exec();
+        res.json({
+            message: "Transactions retrieved successfully",
+            data: transactions
+        });
+    }
+    catch (error) {
+        res.status(500).json({ message: "Error retrieving transactions", error });
+    }
+});
+exports.listTransactions = listTransactions;

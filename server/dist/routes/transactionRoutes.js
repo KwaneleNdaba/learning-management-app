@@ -8,4 +8,5 @@ const transactionController_1 = require("../controllers/transactionController");
 const router = express_1.default.Router();
 router.post("/stripe/payment-intent", transactionController_1.createStripPaymentIntent);
 router.post("/", transactionController_1.createTransaction);
+router.get("/", transactionController_1.listTransactions);
 exports.default = router;
