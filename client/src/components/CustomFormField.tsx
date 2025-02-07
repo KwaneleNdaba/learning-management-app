@@ -137,10 +137,10 @@ export const CustomFormField: React.FC<FormFieldProps> = ({
             className={`${inputClassName}`}
             files={field.value ? [field.value] : []}
             allowMultiple={multiple}
-            onupdatefiles={(fileItems) => {
+            onupdatefiles={(fileItems:any) => {
               field.onChange(
                 multiple
-                  ? fileItems.map((fileItem) => fileItem.file)
+                  ? fileItems.map((fileItem:any) => fileItem.file)
                   : fileItems[0]?.file
               );
             }}

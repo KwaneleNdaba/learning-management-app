@@ -10,7 +10,7 @@ const customBaseQuery = async (
   extraOptions: any
 ) => {
   const baseQuery = fetchBaseQuery({
-    baseUrl:"http://localhost:3001",
+    baseUrl:process.env.NEXT_PUBLIC_API_BASE_URL,
     prepareHeaders: async (headers) => {
       const token = await window.Clerk?.session?.getToken();
       if (token) {
