@@ -9,6 +9,7 @@ import seed from "./seed/seedDynamodb";
 import courseRoutes from "./routes/courseRoutes";
 import {clerkMiddleware, createClerkClient, requireAuth} from "@clerk/express"
 import userClerkRoutes from "./routes/userRoutes"
+import transactionsRoutes from "./routes/transactionRoutes"
 
 /* CONFIGURATIONS */
 dotenv.config();
@@ -38,6 +39,7 @@ app.get("/", (req, res) => {
 
 app.use("/courses", courseRoutes);
 app.use("/users/clerk",  requireAuth(),userClerkRoutes);
+app.use("/transactions",  requireAuth(),transactionsRoutes);
 
 
 /* SERVER */
