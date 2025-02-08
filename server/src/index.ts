@@ -10,7 +10,7 @@ import courseRoutes from "./routes/courseRoutes";
 import {clerkMiddleware, createClerkClient, requireAuth} from "@clerk/express"
 import userClerkRoutes from "./routes/userRoutes"
 import transactionsRoutes from "./routes/transactionRoutes"
-
+import userCourseProgressRoutes from "./routes/userCourseProgressRoutes"
 /* CONFIGURATIONS */
 dotenv.config();
 const isProduction = process.env.NODE_ENV === "production";
@@ -40,6 +40,7 @@ app.get("/", (req, res) => {
 app.use("/courses", courseRoutes);
 app.use("/users/clerk",  requireAuth(),userClerkRoutes);
 app.use("/transactions",  requireAuth(),transactionsRoutes);
+app.use("/users/course-progress", requireAuth(), userCourseProgressRoutes);
 
 
 /* SERVER */

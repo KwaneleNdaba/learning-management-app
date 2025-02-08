@@ -1,12 +1,12 @@
 "use client";
 
+import Loading from "@/components/Loading";
 import { useGetCoursesQuery } from "@/state/api";
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import CourseCardSearch from "@/components/CourseCardSearch";
 import SelectedCourse from "./SelectedCourse";
-import Loading from "@/components/ui/Loading";
 
 const Search = () => {
   const searchParams = useSearchParams();

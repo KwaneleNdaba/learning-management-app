@@ -84,7 +84,7 @@ const Landing = () => {
           </div>
         </div>
         <div className="landing__hero-images">
-          {["/images/hero1.jpg", "/images/hero2.jpg", "/images/hero3.jpg"].map((src, index) => (
+          {["/hero1.jpg", "/hero2.jpg", "/hero3.jpg"].map((src, index) => (
             <Image
               key={src}
               src={src}

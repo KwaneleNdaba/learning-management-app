@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import { useUser } from "@clerk/nextjs";
 import { useState, useMemo } from "react";
-import Loading from "@/components/ui/Loading";
+import Loading from "@/components/Loading";
 
 const Courses = () => {
   const router = useRouter();

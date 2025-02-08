@@ -10,7 +10,7 @@ const customBaseQuery = async (
   extraOptions: any
 ) => {
   const baseQuery = fetchBaseQuery({
-    baseUrl:process.env.NEXT_PUBLIC_API_BASE_URL,
+    baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL,
     prepareHeaders: async (headers) => {
       const token = await window.Clerk?.session?.getToken();
       if (token) {
@@ -61,7 +61,7 @@ const customBaseQuery = async (
 export const api = createApi({
   baseQuery: customBaseQuery,
   reducerPath: "api",
-  tagTypes: ["Courses", "Users", "UserCourseProgress"],//represent the data we gonna receive from the backend 
+  tagTypes: ["Courses", "Users", "UserCourseProgress"],
   endpoints: (build) => ({
     /* 
     ===============
@@ -91,7 +91,7 @@ export const api = createApi({
     }),
 
     getCourse: build.query<Course, string>({
-      query: (id) => `courses/${id}`,//this is how we gonna query or call the api for getting the course 
+      query: (id) => `courses/${id}`,
       providesTags: (result, error, id) => [{ type: "Courses", id }],
     }),
 
