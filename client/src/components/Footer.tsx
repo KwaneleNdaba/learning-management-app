@@ -9,6 +9,7 @@ function Footer() {
         {
             ["About", "Privacy Policy", "Licensing", "Contact"].map((item, index) =>(
                 <Link
+                key={index}
                 href={item}
                 className='footer__link'
                 >
