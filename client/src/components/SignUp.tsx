@@ -20,7 +20,6 @@ const SignUpComponent = () => {
     : "/signin";
 
   const getRedirectUrl = () => {
-    setShowIcon(false);
     if (isCheckoutPage) {
       return `/checkout?step=2&id=${courseId}&showSignUp=false`;
     }
@@ -37,11 +36,10 @@ const SignUpComponent = () => {
 
 
 useEffect(() => {
-  setShowIcon(false);
   if(selectedUserType){
     setTimeout(() => {  
       setShowIcon(true);
-    },1000)
+    },2000)
   }
 },[selectedUserType])
 
@@ -60,8 +58,8 @@ useEffect(() => {
       zIndex: "99",
       cursor: "pointer",
       transition: "opacity 0.3s ease-in-out, transform 0.3s ease-in-out",
-      opacity: showIcon ? 1 : 0, 
-      transform: showIcon ? "translateX(0)" : "translateX(-10px)", 
+      opacity: showIcon ? 1 : 0, // Smooth fade
+      transform: showIcon ? "translateX(0)" : "translateX(-10px)", // Slide effect
     }}
   >
     <ArrowLeft />
@@ -98,7 +96,7 @@ useEffect(() => {
     
   
     :   <div className="bg-customgreys-secondarybg w-full max-w-md p-8 rounded-lg shadow-lg border border-customgreys-primarybg">
-    <h2 className="text-2xl font-bold text-white-50 mb-6 text-center">Sign Up As</h2>
+    <h2 className="text-2xl font-bold text-white-50 mb-6 text-center">Sign Up</h2>
     
     <div className="mb-6">
       <label htmlFor="userType" className="block text-white-50 font-medium mb-2">
