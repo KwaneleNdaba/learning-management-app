@@ -20,7 +20,7 @@ import { useAppDispatch, useAppSelector } from "@/state/redux";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft, Plus } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import DroppableComponent from "./Droppable";
 import ChapterModal from "./ChapterModal";
@@ -33,6 +33,7 @@ const CourseEditor = () => {
   const { data: course, isLoading, refetch } = useGetCourseQuery(id);
   const [updateCourse] = useUpdateCourseMutation();
   const [getUploadVideoUrl] = useGetUploadVideoUrlMutation();
+  const [isSavingLoading, setSavingIsLoading] = useState(false);
 
   const dispatch = useAppDispatch();
   const { sections } = useAppSelector((state) => state.global.courseEditor);
@@ -62,6 +63,7 @@ const CourseEditor = () => {
   }, [course, methods]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const onSubmit = async (data: CourseFormData) => {
+    setSavingIsLoading(true);
     try {
       const updatedSections = await uploadAllVideos(
         sections,
@@ -77,8 +79,12 @@ const CourseEditor = () => {
       }).unwrap();
 
       refetch();
+      setSavingIsLoading(false);
+
     } catch (error) {
       console.error("Failed to update course:", error);
+      setSavingIsLoading(false);
+
     }
   };
 
@@ -117,9 +123,15 @@ const CourseEditor = () => {
                   type="submit"
                   className="bg-primary-700 hover:bg-primary-600"
                 >
-                  {methods.watch("courseStatus")
+              {
+                !isSavingLoading ? <>
+                    {methods.watch("courseStatus")
                     ? "Update Published Course"
                     : "Save Draft"}
+                </>:<div className="w-6 h-6 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+
+              }
+
                 </Button>
               </div>
             }
