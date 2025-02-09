@@ -49,14 +49,13 @@ const express_2 = require("@clerk/express");
 const userRoutes_1 = __importDefault(require("./routes/userRoutes"));
 const transactionRoutes_1 = __importDefault(require("./routes/transactionRoutes"));
 const userCourseProgressRoutes_1 = __importDefault(require("./routes/userCourseProgressRoutes"));
-/* CONFIGURATIONS */
 dotenv_1.default.config();
 const isProduction = process.env.NODE_ENV === "production";
 if (!isProduction) {
     dynamoose.aws.ddb.local();
 }
 exports.clerkClient = (0, express_2.createClerkClient)({
-    secretKey: process.env.CLERK_SECRET_KEY,
+    secretKey: process.env.CLERK_SECRET_KEY || "",
 });
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
@@ -75,10 +74,4 @@ app.use("/courses", courseRoutes_1.default);
 app.use("/users/clerk", (0, express_2.requireAuth)(), userRoutes_1.default);
 app.use("/transactions", (0, express_2.requireAuth)(), transactionRoutes_1.default);
 app.use("/users/course-progress", (0, express_2.requireAuth)(), userCourseProgressRoutes_1.default);
-/* SERVER */
-const port = process.env.PORT || 3001;
-if (!isProduction) {
-    app.listen(port, () => {
-        console.log(`Server running on port ${port}`);
-    });
-}
+exports.default = app;

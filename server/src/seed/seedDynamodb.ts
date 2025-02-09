@@ -11,7 +11,7 @@ import Transaction from "../models/transactionModel";
 import Course from "../models/courseModel";
 import UserCourseProgress from "../models/userCourseProgressModel";
 import dotenv from "dotenv";
-
+import { DescribeTableCommand } from "@aws-sdk/client-dynamodb";
 dotenv.config();
 let client: DynamoDBClient;
 
@@ -30,7 +30,7 @@ if (!isProduction) {
   });
 } else {
   client = new DynamoDBClient({
-    region: process.env.AWS_REGION || "us-east-2",
+    region: process.env.AWS_REGION || "us-east-1",
   });
 }
 
@@ -44,58 +44,94 @@ console.warn = (message, ...args) => {
   }
 };
 
+async function isTableActive(tableName: string): Promise<boolean> {
+  try {
+    const describeCommand = new DescribeTableCommand({ TableName: tableName });
+    const response = await client.send(describeCommand);
+    return response.Table?.TableStatus === "ACTIVE";
+  } catch (error) {
+    console.error(`Error checking status of table ${tableName}:`, error);
+    return false;
+  }
+}
+
 async function createTables() {
   const models = [Transaction, UserCourseProgress, Course];
 
   for (const model of models) {
     const tableName = model.name;
-    const table = new dynamoose.Table(tableName, [model], {
-      create: true,
-      update: true,
-      waitForActive: true,
-      throughput: { read: 5, write: 5 },
-    });
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      await table.initialize();
-      console.log(`Table created and initialized: ${tableName}`);
+      // Check if the table already exists
+      const tableExists = await client
+        .send(new ListTablesCommand({}))
+        .then((data) => data.TableNames?.includes(tableName))
+        .catch(() => false);
+
+      if (!tableExists) {
+        console.log(`Creating table: ${tableName}`);
+        const table = new dynamoose.Table(tableName, [model], {
+          create: true,
+          update: true,
+          waitForActive: true,
+          throughput: { read: 5, write: 5 },
+        });
+
+        await new Promise((resolve) => setTimeout(resolve, 15000)); // 15-second delay
+        console.log(`Initializing table: ${tableName}`);
+        await table.initialize();
+        console.log(`Table created and initialized: ${tableName}`);
+
+        // Wait until the table is active
+        let isActive = false;
+        while (!isActive) {
+          isActive = await isTableActive(tableName);
+          if (!isActive) {
+            console.log(`Waiting for table ${tableName} to become active...`);
+            await new Promise((resolve) => setTimeout(resolve, 5000)); // 5-second delay
+          }
+        }
+        console.log(`Table ${tableName} is now active`);
+      } else {
+        console.log(`Table already exists: ${tableName}`);
+      }
     } catch (error: any) {
       console.error(
         `Error creating table ${tableName}:`,
         error.message,
         error.stack
       );
+      // Continue to the next table even if this one fails
+      continue;
     }
   }
 }
 
 async function seedData(tableName: string, filePath: string) {
-  const data: { [key: string]: any }[] = JSON.parse(
-    fs.readFileSync(filePath, "utf8")
-  );
+  try {
+    const data: { [key: string]: any }[] = JSON.parse(
+      fs.readFileSync(filePath, "utf8")
+    );
 
-  const formattedTableName = pluralize.singular(
-    tableName.charAt(0).toUpperCase() + tableName.slice(1)
-  );
+    const formattedTableName = pluralize.singular(
+      tableName.charAt(0).toUpperCase() + tableName.slice(1)
+    );
 
-  console.log(`Seeding data to table: ${formattedTableName}`);
+    console.log(`Seeding data to table: ${formattedTableName}, total items: ${data.length}`);
 
-  for (const item of data) {
-    try {
-      await dynamoose.model(formattedTableName).create(item);
-    } catch (err) {
-      console.error(
-        `Unable to add item to ${formattedTableName}. Error:`,
-        JSON.stringify(err, null, 2)
-      );
+    for (const item of data) {
+      try {
+        await dynamoose.model(formattedTableName).create(item);
+        console.log(`Added item to ${formattedTableName}:`, item);
+      } catch (err) {
+        console.error(`Error adding item to ${formattedTableName}:`, err);
+      }
     }
-  }
 
-  console.log(
-    "\x1b[32m%s\x1b[0m",
-    `Successfully seeded data to table: ${formattedTableName}`
-  );
+    console.log(`Successfully seeded data to table: ${formattedTableName}`);
+  } catch (error) {
+    console.error(`Error seeding table ${tableName}:`, error);
+  }
 }
 
 async function deleteTable(baseTableName: string) {
@@ -119,28 +155,30 @@ async function deleteAllTables() {
   if (TableNames && TableNames.length > 0) {
     for (const tableName of TableNames) {
       await deleteTable(tableName);
-      await new Promise((resolve) => setTimeout(resolve, 800));
+      await new Promise((resolve) => setTimeout(resolve, 5000)); // 5-second delay
     }
   }
 }
-
 export default async function seed() {
-  await deleteAllTables();
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-  await createTables();
+  try {
+    await deleteAllTables();
+    await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait to avoid conflicts
+    await createTables();
 
-  const seedDataPath = path.join(__dirname, "./data");
-  const files = fs
-    .readdirSync(seedDataPath)
-    .filter((file) => file.endsWith(".json"));
+    const seedDataPath = path.join(process.cwd(), "src/seed");
+    const files = fs
+      .readdirSync(seedDataPath)
+      .filter((file) => file.endsWith(".json"));
 
-  for (const file of files) {
-    const tableName = path.basename(file, ".json");
-    const filePath = path.join(seedDataPath, file);
-    await seedData(tableName, filePath);
+    for (const file of files) {
+      const tableName = path.basename(file, ".json");
+      const filePath = path.join(seedDataPath, file);
+      await seedData(tableName, filePath);
+    }
+  } catch (error) {
+    console.error("Error in seed function:", error);
   }
 }
-
 if (require.main === module) {
   seed().catch((error) => {
     console.error("Failed to run seed script:", error);

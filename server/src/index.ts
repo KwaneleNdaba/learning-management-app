@@ -5,12 +5,19 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import * as dynamoose from "dynamoose";
+import serverless from "serverless-http";
 import seed from "./seed/seedDynamodb";
+import {
+  clerkMiddleware,
+  createClerkClient,
+  requireAuth,
+} from "@clerk/express";
+/* ROUTE IMPORTS */
 import courseRoutes from "./routes/courseRoutes";
-import {clerkMiddleware, createClerkClient, requireAuth} from "@clerk/express"
-import userClerkRoutes from "./routes/userRoutes"
-import transactionsRoutes from "./routes/transactionRoutes"
-import userCourseProgressRoutes from "./routes/userCourseProgressRoutes"
+import userClerkRoutes from "./routes/userClerkRoutes";
+import transactionRoutes from "./routes/transactionRoutes";
+import userCourseProgressRoutes from "./routes/userCourseProgressRoutes";
+
 /* CONFIGURATIONS */
 dotenv.config();
 const isProduction = process.env.NODE_ENV === "production";
@@ -30,24 +37,36 @@ app.use(morgan("common"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cors());
-app.use(clerkMiddleware())
+app.use(clerkMiddleware());
 
 /* ROUTES */
 app.get("/", (req, res) => {
-  res.send("Hello World");
+  res.send("Hello World from Lamba");
 });
 
 app.use("/courses", courseRoutes);
-app.use("/users/clerk",  requireAuth(),userClerkRoutes);
-app.use("/transactions",  requireAuth(),transactionsRoutes);
+app.use("/users/clerk", requireAuth(), userClerkRoutes);
+app.use("/transactions", requireAuth(), transactionRoutes);
 app.use("/users/course-progress", requireAuth(), userCourseProgressRoutes);
 
-
 /* SERVER */
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 3000;
 if (!isProduction) {
   app.listen(port, () => {
     console.log(`Server running on port ${port}`);
   });
 }
 
+// aws production environment
+const serverlessApp = serverless(app);
+export const handler = async (event: any, context: any) => {
+  if (event.action === "seed") {
+    await seed();
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ message: "Data seeded successfully. Thank you" }),
+    };
+  } else {
+    return serverlessApp(event, context);
+  }
+};

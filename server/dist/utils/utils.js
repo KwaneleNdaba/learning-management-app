@@ -1,13 +1,4 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -17,12 +8,11 @@ const path_1 = __importDefault(require("path"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const updateCourseVideoInfo = (course, sectionId, chapterId, videoUrl) => {
-    var _a, _b;
-    const section = (_a = course.sections) === null || _a === void 0 ? void 0 : _a.find((s) => s.sectionId === sectionId);
+    const section = course.sections?.find((s) => s.sectionId === sectionId);
     if (!section) {
         throw new Error(`Section not found: ${sectionId}`);
     }
-    const chapter = (_b = section.chapters) === null || _b === void 0 ? void 0 : _b.find((c) => c.chapterId === chapterId);
+    const chapter = section.chapters?.find((c) => c.chapterId === chapterId);
     if (!chapter) {
         throw new Error(`Chapter not found: ${chapterId}`);
     }
@@ -59,7 +49,7 @@ const getContentType = (filename) => {
 };
 exports.getContentType = getContentType;
 // Preserved HLS/DASH upload logic for future use
-const handleAdvancedVideoUpload = (s3, files, uniqueId, bucketName) => __awaiter(void 0, void 0, void 0, function* () {
+const handleAdvancedVideoUpload = async (s3, files, uniqueId, bucketName) => {
     const isHLSOrDASH = files.some((file) => file.originalname.endsWith(".m3u8") || file.originalname.endsWith(".mpd"));
     if (isHLSOrDASH) {
         // Handle HLS/MPEG-DASH Upload
@@ -74,11 +64,11 @@ const handleAdvancedVideoUpload = (s3, files, uniqueId, bucketName) => __awaiter
             })
                 .promise();
         });
-        yield Promise.all(uploadPromises);
+        await Promise.all(uploadPromises);
         // Determine manifest file URL
         const manifestFile = files.find((file) => file.originalname.endsWith(".m3u8") ||
             file.originalname.endsWith(".mpd"));
-        const manifestFileName = (manifestFile === null || manifestFile === void 0 ? void 0 : manifestFile.originalname) || "";
+        const manifestFileName = manifestFile?.originalname || "";
         const videoType = manifestFileName.endsWith(".m3u8") ? "hls" : "dash";
         return {
             videoUrl: `${process.env.CLOUDFRONT_DOMAIN}/videos/${uniqueId}/${manifestFileName}`,
@@ -86,7 +76,7 @@ const handleAdvancedVideoUpload = (s3, files, uniqueId, bucketName) => __awaiter
         };
     }
     return null; // Return null if not HLS/DASH to handle regular upload
-});
+};
 exports.handleAdvancedVideoUpload = handleAdvancedVideoUpload;
 const mergeSections = (existingSections, newSections) => {
     const existingSectionsMap = new Map();
@@ -114,7 +104,10 @@ const mergeChapters = (existingChapters, newChapters) => {
         existingChaptersMap.set(existingChapter.chapterId, existingChapter);
     }
     for (const newChapter of newChapters) {
-        existingChaptersMap.set(newChapter.chapterId, Object.assign(Object.assign({}, (existingChaptersMap.get(newChapter.chapterId) || {})), newChapter));
+        existingChaptersMap.set(newChapter.chapterId, {
+            ...(existingChaptersMap.get(newChapter.chapterId) || {}),
+            ...newChapter,
+        });
     }
     return Array.from(existingChaptersMap.values());
 };

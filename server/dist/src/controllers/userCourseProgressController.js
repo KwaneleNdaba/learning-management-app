@@ -1,13 +1,4 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -18,7 +9,7 @@ const userCourseProgressModel_1 = __importDefault(require("../models/userCourseP
 const courseModel_1 = __importDefault(require("../models/courseModel"));
 const utils_1 = require("./../../utils/utils");
 const utils_2 = require("./../../utils/utils");
-const getUserEnrolledCourses = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const getUserEnrolledCourses = async (req, res) => {
     const { userId } = req.params;
     const auth = (0, express_1.getAuth)(req);
     if (!auth || auth.userId !== userId) {
@@ -26,11 +17,11 @@ const getUserEnrolledCourses = (req, res) => __awaiter(void 0, void 0, void 0, f
         return;
     }
     try {
-        const enrolledCourses = yield userCourseProgressModel_1.default.query("userId")
+        const enrolledCourses = await userCourseProgressModel_1.default.query("userId")
             .eq(userId)
             .exec();
         const courseIds = enrolledCourses.map((item) => item.courseId);
-        const courses = yield courseModel_1.default.batchGet(courseIds);
+        const courses = await courseModel_1.default.batchGet(courseIds);
         res.json({
             message: "Enrolled courses retrieved successfully",
             data: courses,
@@ -41,12 +32,12 @@ const getUserEnrolledCourses = (req, res) => __awaiter(void 0, void 0, void 0, f
             .status(500)
             .json({ message: "Error retrieving enrolled courses", error });
     }
-});
+};
 exports.getUserEnrolledCourses = getUserEnrolledCourses;
-const getUserCourseProgress = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const getUserCourseProgress = async (req, res) => {
     const { userId, courseId } = req.params;
     try {
-        const progress = yield userCourseProgressModel_1.default.get({ userId, courseId });
+        const progress = await userCourseProgressModel_1.default.get({ userId, courseId });
         if (!progress) {
             res
                 .status(404)
@@ -63,13 +54,13 @@ const getUserCourseProgress = (req, res) => __awaiter(void 0, void 0, void 0, fu
             .status(500)
             .json({ message: "Error retrieving user course progress", error });
     }
-});
+};
 exports.getUserCourseProgress = getUserCourseProgress;
-const updateUserCourseProgress = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const updateUserCourseProgress = async (req, res) => {
     const { userId, courseId } = req.params;
     const progressData = req.body;
     try {
-        let progress = yield userCourseProgressModel_1.default.get({ userId, courseId });
+        let progress = await userCourseProgressModel_1.default.get({ userId, courseId });
         if (!progress) {
             // If no progress exists, create initial progress
             progress = new userCourseProgressModel_1.default({
@@ -87,7 +78,7 @@ const updateUserCourseProgress = (req, res) => __awaiter(void 0, void 0, void 0,
             progress.lastAccessedTimestamp = new Date().toISOString();
             progress.overallProgress = (0, utils_2.calculateOverallProgress)(progress.sections);
         }
-        yield progress.save();
+        await progress.save();
         res.json({
             message: "Course progress retrieved successfuly",
             data: progress,
@@ -100,5 +91,5 @@ const updateUserCourseProgress = (req, res) => __awaiter(void 0, void 0, void 0,
             error,
         });
     }
-});
+};
 exports.updateUserCourseProgress = updateUserCourseProgress;
