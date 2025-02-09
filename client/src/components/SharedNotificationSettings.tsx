@@ -22,7 +22,7 @@ const SharedNotificationSettings = ({
   const [updateUser] = useUpdateUserMutation();
 
   const currentSettings =
-    (user?.publicMetadata as { settings?: UserSettings })?.settings || {};
+    (user?.unsafeMetadata as { settings?: UserSettings })?.settings || {};
 
   const methods = useForm<NotificationSettingsFormData>({
     resolver: zodResolver(notificationSettingsSchema),
