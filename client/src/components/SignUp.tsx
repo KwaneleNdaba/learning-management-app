@@ -14,14 +14,13 @@ const SignUpComponent = () => {
   const courseId = searchParams.get("id");
   const [selectedUserType, setSelectedUserType] = useState(""); 
   const [showIcon, setShowIcon] = useState(false);
-  const [hideIcon, setHideIcon] = useState(true)
 
   const signInUrl = isCheckoutPage
     ? `/checkout?step=1&id=${courseId}&showSignUp=false`
     : "/signin";
 
   const getRedirectUrl = () => {
-    setHideIcon(false);
+    setShowIcon(false);
     if (isCheckoutPage) {
       return `/checkout?step=2&id=${courseId}&showSignUp=false`;
     }
@@ -52,25 +51,21 @@ useEffect(() => {
     selectedUserType ?
 
     <>
-
-    {
-      hideIcon  &&   <div
-      onClick={() => setSelectedUserType("")}
-      style={{
-        position: "relative",
-        bottom: "18.5em",
-        left: "4em",
-        zIndex: "99",
-        cursor: "pointer",
-        transition: "opacity 0.3s ease-in-out, transform 0.3s ease-in-out",
-        opacity: showIcon ? 1 : 0, 
-        transform: showIcon ? "translateX(0)" : "translateX(-10px)", 
-      }}
-    >
-      <ArrowLeft />
-    </div>
-  
-    }
+  <div
+    onClick={() => setSelectedUserType("")}
+    style={{
+      position: "relative",
+      bottom: "18.5em",
+      left: "4em",
+      zIndex: "99",
+      cursor: "pointer",
+      transition: "opacity 0.3s ease-in-out, transform 0.3s ease-in-out",
+      opacity: showIcon ? 1 : 0, 
+      transform: showIcon ? "translateX(0)" : "translateX(-10px)", 
+    }}
+  >
+    <ArrowLeft />
+  </div>
 
       <SignUp
         appearance={{
